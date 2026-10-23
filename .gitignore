@@ -1,0 +1,28 @@
+# data / weights / outputs (root-anchored)
+/datasets/
+/weights/
+/outputs/
+/output/
+/demo_out*/
+
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+.eggs/
+/build/
+/dist/
+*.so
+
+# artifacts
+*.pth
+*.onnx
+*.log
+
+# editors
+.vscode/
+.idea/
+.ruff_cache/
+.pytest_cache/
