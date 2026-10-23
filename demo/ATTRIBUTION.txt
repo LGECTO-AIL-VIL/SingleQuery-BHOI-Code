@@ -1,0 +1,7 @@
+Demo images are from the COCO val2017 set (images.cocodataset.org); each is licensed
+CC BY 2.0 ("Attribution License", http://creativecommons.org/licenses/by/2.0/) by its Flickr author.
+Images are unmodified. See https://cocodataset.org/#termsofuse.
+
+000000409475.jpg  COCO val2017 id 409475  Attribution License  http://farm4.staticflickr.com/3541/3404640306_5487b904da_z.jpg
+000000323355.jpg  COCO val2017 id 323355  Attribution License  http://farm6.staticflickr.com/5165/5241297935_1dcda049cf_z.jpg
+000000263969.jpg  COCO val2017 id 263969  Attribution License  http://farm8.staticflickr.com/7307/8735597371_053c077264_z.jpg

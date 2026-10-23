@@ -1,0 +1,25 @@
+seed: 99
+
+sync_bn: True
+find_unused_parameters: True
+
+use_amp: False
+scaler:
+  type: GradScaler
+  enabled: True
+
+# EMA of the weights; the released checkpoint holds the EMA weights (`ema.module`).
+# k = global batch / 16 (see configs/sqbhoi_r50vd.yml)
+use_ema: True
+ema:
+  type: ModelEMA
+  decay: 0.9999
+  warmups: 2000
+  k: 8
+
+logger:
+  type: InfoLogger
+
+summary:
+  type: SummaryWriter
+  enabled: True

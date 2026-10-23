@@ -1,0 +1,80 @@
+# Datasets (paths relative to the repo root; see README "Datasets").
+#   train: COCO train2017 images + datasets/singlequery_bhoi_train.json
+#          (person boxes + 17 keypoints + hand / hand-object annotations)
+#   val  : COCO val2017 (box AP + keypoint AP, official annotation files)
+#          ContactHands val (OiH accuracy)
+
+category_ver: 1.9
+
+train_dataloader:
+  type: DataLoader
+  dataset:
+    type: CocoOiHDetection
+    img_folder: ./datasets/mscoco/images/train2017/
+    ann_file: ./datasets/singlequery_bhoi_train.json
+    transforms:
+      type: Compose
+      ops:
+        - {type: RandomPhotometricDistort, p: 0.5}
+        - {type: RandomHorizontalFlip, p: 0.5}
+        - {type: RandomPerspective, p: 0.5, degrees: 0, translate: 0.3, scale: 0.3, shear: 0, size: [640, 640], norm: True}
+        - {type: BoxConvert, in_fmt: 'xyxy', out_fmt: 'cxcywh'}
+        - {type: ToImageTensor}
+        - {type: ConvertDtype}
+        - {type: Normalize, mean: [0.5, 0.5, 0.5], std: [0.5, 0.5, 0.5]}
+  shuffle: True
+  batch_size: 16      # per GPU (global batch 128 = 16 x 8 GPUs); see configs/sqbhoi_r50vd.yml
+  num_workers: 7
+  collate_fn: default_collate_fn
+  pin_memory: True
+
+val_dataloader:
+  - type: DataLoader
+    dataset:
+      type: CocoValDetection
+      dataset_name: COCO
+      img_folder: ./datasets/mscoco/images/val2017/
+      ann_file: ./datasets/mscoco/annotations/instances_val2017.json
+      transforms:
+        type: Compose
+        ops:
+          - {type: Resize, size: [640, 640]}
+          - {type: ToImageTensor}
+          - {type: ConvertDtype}
+          - {type: Normalize, mean: [0.5, 0.5, 0.5], std: [0.5, 0.5, 0.5]}
+      evaluators:
+        - type: CocoEvaluator
+          ann_files:
+            bbox: ./datasets/mscoco/annotations/instances_val2017.json
+            keypoints: ./datasets/mscoco/annotations/person_keypoints_val2017.json
+    shuffle: False
+    batch_size: 8
+    num_workers: 8
+    drop_last: False
+    collate_fn: default_collate_fn
+    pin_memory: True
+
+  - type: DataLoader
+    dataset:
+      type: ContactHands
+      mode: val
+      img_folder: ./datasets/ContactHands/JPEGImages/
+      gt_folder: ./datasets/ContactHands/eval_Annotations/
+      use_load_cache: False
+      transforms:
+        type: Compose
+        ops:
+          - {type: Resize, size: [640, 640]}
+          - {type: ToImageTensor}
+          - {type: ConvertDtype}
+          - {type: Normalize, mean: [0.5, 0.5, 0.5], std: [0.5, 0.5, 0.5]}
+      evaluators:
+        - type: OiHEvaluator
+          person_box_oracle: True
+          eval_hand_obj: True   # also report the hand-object ("Hard") accuracy
+    shuffle: False
+    batch_size: 8
+    num_workers: 8
+    drop_last: False
+    collate_fn: default_collate_fn
+    pin_memory: True

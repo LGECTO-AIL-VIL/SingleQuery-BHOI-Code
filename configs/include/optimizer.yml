@@ -1,0 +1,40 @@
+# AdamW values below are for the global batch 128 (k = 8, see configs/sqbhoi_r50vd.yml).
+
+epoches: 72
+clip_max_norm: 0.1
+
+optimizer:
+  type: AdamW
+  params:
+    -
+      params: '^(?=.*backbone)(?=.*norm|.*bn).*$'
+      weight_decay: 0.
+      lr: 0.000028284
+    -
+      params: '^(?=.*backbone)(?!.*norm|.*bn).*$'
+      lr: 0.000028284
+    -
+      params: '^(?=.*encoder(?=.*bias|.*norm.*weight)).*$'
+      weight_decay: 0.
+    -
+      params: '^(?=.*decoder(?=.*bias|.*norm.*weight)).*$'
+      weight_decay: 0.
+
+  lr: 0.00028284
+  betas: [0.2, 0.992]
+  eps: 0.0000000035355
+  weight_decay: 0.000282817
+
+# Iteration-based schedule, all lengths in epochs (converted with the epoch length).
+# Kept as in the reference run: the cosine decay (T_max 275) is much longer than the 72 training
+# epochs, so the lr only decays to ~0.87x of its peak; the later schedulers are never reached.
+lr_scheduler:
+  type: SequentialLR
+  convert_to_iter_based: True
+  schedulers:
+    - {type: QuadraticWarmupLR, begin: 0, end: 5}
+    - {type: ContinuosCosineAnnealingLR, eta_min_ratio: 0.05, T_max: 275}
+    - {type: ContinuosConstantLR, total_iters: 1, factor: 2.5}
+    - {type: ContinuosCosineAnnealingLR, eta_min_ratio: 0.05, T_max: 300}
+    - {type: ContinuosConstantLR, total_iters: 20, factor: 1}
+  milestones: [5, 280, 281, 581]

@@ -1,0 +1,84 @@
+task: ["detection", "body", "oih"]
+num_kpts: 17
+pose_relative: False
+
+model: SQBHOI
+criterion: SQBHOICriterion
+postprocessor: SQBHOIOiHPostProcessor
+
+use_focal_loss: True
+num_classes: 81
+
+# hand-object interaction: right / left hand boxes + object box, object = "which query is my object"
+# similarity logits (oih_sim)
+oih_config: {oih_cls: 2, oih_contact: False, oih_box: True, oih_obj_box: True, oih_sim: True, oih_sim_dim: 256, oih_vis: False}
+
+SQBHOI:
+  backbone: PResNet
+  encoder: HybridEncoder
+  decoder: SQBHOIOiHTransformer
+  multi_scale: [480, 512, 544, 576, 608, 640, 640, 640, 672, 704, 736, 768, 800]
+
+PResNet:
+  depth: 50
+  variant: d
+  freeze_at: 0
+  return_idx: [1, 2, 3]
+  num_stages: 4
+  freeze_norm: True
+  pretrained: True   # ImageNet weights are downloaded on first use
+
+HybridEncoder:
+  in_channels: [512, 1024, 2048]
+  feat_strides: [8, 16, 32]
+
+  # intra
+  hidden_dim: 256
+  use_encoder_idx: [2]
+  num_encoder_layers: 1
+  nhead: 8
+  dim_feedforward: 1024
+  dropout: 0.
+  enc_act: 'gelu'
+  pe_temperature: 10000
+
+  # cross
+  expansion: 1.0
+  depth_mult: 1
+  act: 'silu'
+
+  # eval
+  eval_spatial_size: [640, 640]
+
+SQBHOIOiHTransformer:
+  feat_channels: [256, 256, 256]
+  feat_strides: [8, 16, 32]
+  hidden_dim: 256
+  num_levels: 3
+  num_queries: 300
+  num_decoder_layers: 6
+  num_denoising: 100
+  eval_idx: -1
+  eval_spatial_size: [640, 640]
+  nhead: 32
+  kpts_nhead: 17
+  num_kpts: 17
+  batchnorm: True
+  init_2dkpt_file: assets/pose_represent_coco.npy
+
+SQBHOIOiHPostProcessor:
+  num_top_queries: 100
+
+SQBHOICriterion:
+  alpha: 0.75
+  gamma: 2.0
+  weight_dict: {
+    loss_vfl: 4,
+    loss_bbox: 5, loss_giou: 2,
+    loss_2d_kpts: 10, loss_oks: 4, loss_vis: 0.01,
+    loss_oih_bbox: 2, loss_oih_sim: 4}
+  matcher:
+    type: HungarianMatcher
+    weight_dict: {cost_class: 4, cost_bbox: 5, cost_giou: 2}
+    alpha: 0.25
+    gamma: 2.0

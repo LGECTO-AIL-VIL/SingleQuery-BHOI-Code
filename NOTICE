@@ -1,0 +1,32 @@
+SingleQuery-BHOI
+Copyright 2026 LG Electronics Inc.
+
+This product includes software derived from RT-DETR
+(https://github.com/lyuwenyu/RT-DETR, Apache-2.0, Copyright (c) 2023 lyuwenyu).
+
+Source files carrying upstream attributions (as present in the file headers):
+  - "by lyuwenyu" (RT-DETR):
+      src/core/__init__.py, src/core/config.py, src/core/yaml_config.py,
+      src/core/yaml_utils.py, src/solver/__init__.py, src/solver/solver.py,
+      src/solver/det_solver.py, src/solver/det_engine.py, src/misc/dist.py,
+      src/optim/ema.py, src/nn/backbone/presnet.py, src/nn/backbone/common.py,
+      src/zoo/sqbhoi/__init__.py, src/zoo/sqbhoi/sqbhoi.py,
+      src/zoo/sqbhoi/hybrid_encoder.py, src/zoo/sqbhoi/denoising.py,
+      src/zoo/sqbhoi/utils.py, tools/train.py
+  - "Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved"
+    (DETR, https://github.com/facebookresearch/detr, Apache-2.0):
+      src/misc/logger.py, src/zoo/sqbhoi/box_ops.py, src/zoo/sqbhoi/matcher.py
+  - Copied / adapted code, as stated in the file comments:
+      src/nn/backbone/common.py (DETR models/backbone.py, copy and modified)
+      src/misc/logger.py (torchvision references, "mostly copy-paste")
+  - Referenced implementations (see the comments in the files):
+      src/misc/dist.py (torchvision references/detection/utils.py, DETR util/misc.py)
+      src/zoo/sqbhoi/box_ops.py (DETR util/box_ops.py)
+      src/optim/ema.py (ultralytics/yolov5 torch_utils.py)
+      src/optim/scheduler/cosine_annealing_scheduler.py (open-mmlab/mmengine)
+      src/optim/scheduler/quadratic_warmup.py (open-mmlab/mmpose)
+  - Pretrained ResNet-vd backbone weights are downloaded at run time from
+    https://github.com/lyuwenyu/storage (see src/nn/backbone/presnet.py).
+
+Datasets and the released annotation file are not covered by the Apache-2.0
+license; see the "Data licenses" section of README.md.
